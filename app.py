@@ -84,7 +84,3 @@ def show():
     applications = registration.query.all()
     return render_template('show.html', applications=applications)
     
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
