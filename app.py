@@ -14,8 +14,8 @@ class registration(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     f_name = db.Column(db.String(80), unique=False, nullable=False)
     l_name = db.Column(db.String(80), unique=False, nullable=False)
-    address = db.Column(db.String(80), unique=False, nullable=False)
     parent_name = db.Column(db.String(80), unique=False, nullable=False)
+    address = db.Column(db.String(80), unique=False, nullable=False)
     email = db.Column(db.String(80), unique=False, nullable=False)
     phone = db.Column(db.String(80), unique=False, nullable=False)
 
@@ -32,6 +32,10 @@ def index():
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+@app.route('/error')
+def error():
+    return render_template('404.html')
 
 @app.route('/courses')
 def courses():
@@ -50,6 +54,10 @@ def testimonial():
 def contact():
     return render_template('contact.html')
 
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
 @app.route('/join', methods=['POST', 'GET'])
 def join():
     if request.method == 'POST':
@@ -57,18 +65,22 @@ def join():
         new_registration = registration(
             f_name = request.form.get('f_name'),
             l_name = request.form.get('l_name'),
-            address = request.form.get('address'),
             parent_name = request.form.get('parent_name'),
+            address = request.form.get('address'),
             email = request.form.get('email'),
             phone = request.form.get('phone'),
-        )
+        )        
 
         print('Printing new application here:', new_registration)
         # now push it to the database
+
+        counts = registration.query.count()
+
         try:
             db.session.add(new_registration)
             db.session.commit()
-            return redirect('/join') 
+
+            return redirect('login') 
         except Exception as e:
             db.session.rollback()  # Roll back the session to clean up the failed transaction
             print('Error details:', str(e))
@@ -84,3 +96,10 @@ def show():
     applications = registration.query.all()
     return render_template('show.html', applications=applications)
     
+@app.route('/<int:id>')
+def delete(id):
+    data = registration.query.get(id)
+    db.session.delete(data)
+    db.session.commit()
+    return redirect('show')
+
