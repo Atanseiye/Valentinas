@@ -17,7 +17,7 @@ app.config["SQLALCHEMY_BINDS"] = {
     'SignUp' : 'sqlite:///SignUp.db'
 }
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config["SECRET_KEY"] = "K0lade001."
+# app.config["SECRET_KEY"] = "K0lade001."
 
 # initialise the database
 db = SQLAlchemy(app)
@@ -193,5 +193,5 @@ def signup_now():
             pass
 
 
-if __name__ == '__main__':
-    app.run()
+# if __name__ == '__main__':
+#     app.run()
