@@ -2,6 +2,7 @@ from flask import Flask, render_template, url_for, redirect, request
 from flask_sqlalchemy import SQLAlchemy # type: ignore
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
+from flask_login import LoginManager, UserMixin
 
 import traceback
 import random
@@ -16,9 +17,20 @@ app.config["SQLALCHEMY_BINDS"] = {
     'SignUp' : 'sqlite:///SignUp.db'
 }
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SECRET_KEY"] = "K0lade001."
 
+# initialise the database
 db = SQLAlchemy(app)
 # db.init_app(app)
+
+
+
+# LoginManager is needed for our application 
+# to be able to log in and out users
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
 
 Base = declarative_base()
 # Create a model for users registration
@@ -53,14 +65,19 @@ class WebContent(db.Model):
     id = db.Column(db.String(50), primary_key=True)
     content = db.Column(db.Text)
 
-class SignUp(db.Model):
+class SignUp(UserMixin, db.Model):
     __bind_key__ = 'SignUp'
     __tablename__ = 'SignUp'
-    id = db.Column(db.String(50), primary_key=True)
-    username = db.Column(db.String(80), nullable=False)
-    email = db.Column(db.String(80), nullable=False)
+    # id = db.Column(db.String(50), primary_key=True)
+    username = db.Column(db.String(80),  unique=True, nullable=False, primary_key=True)
+    email = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
     password_again = db.Column(db.String(80), nullable=False)
+
+# Creates a user loader callback that returns the user object given an id
+@login_manager.user_loader
+def loader_user(user_id):
+    return SignUp.query.get(user_id)
 
 
 with app.app_context():
@@ -171,11 +188,10 @@ def signup_now():
             db.session.add(new_signUp)
             db.session.commit()
             print('Sign Up successful')
-            redirect('join')
+            return redirect('join') 
         except:
             pass
-    else:
-        return render_template('signup')
 
-# if __name__ == '__main__':
-#     app.run()
+
+if __name__ == '__main__':
+    app.run()
