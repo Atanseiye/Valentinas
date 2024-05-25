@@ -1,17 +1,41 @@
 from flask import Flask, render_template, url_for, redirect, request
 from flask_sqlalchemy import SQLAlchemy # type: ignore
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import create_engine, MetaData
+from sqlalchemy.ext.declarative import declarative_base
+
 import traceback
+import random
+import string
+import datetime
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///valentina_new_student.db'
+app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///:memory:'
+app.config["SQLALCHEMY_BINDS"] = {
+    'registration': 'sqlite:///valentina_new_student.db',
+    'web_content':'sqlite:///web_contents.db',
+    'login' : 'sqlite:///login.db'
+}
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
 # db.init_app(app)
 
-
+Base = declarative_base()
 # Create a model for users registration
 class registration(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+
+    # Student ID generator
+    @staticmethod
+    def generate_student_id(length=4):
+        character = string.digits
+        id = 'VA/' + str(datetime.datetime.now().year)[-2:] + '/' + ''.join(random.choice(character) for _ in range(length))
+        return id
+
+    __bind_key__ = 'registration'
+    __tablename__ = 'registration'
+
+    # id = db.Column(db.Integer, autoincrement=True)
+    Student_ID = db.Column(db.String(10), unique=True, nullable=False, default=generate_student_id(), primary_key=True)
     f_name = db.Column(db.String(80), unique=False, nullable=False)
     l_name = db.Column(db.String(80), unique=False, nullable=False)
     parent_name = db.Column(db.String(80), unique=False, nullable=False)
@@ -20,10 +44,26 @@ class registration(db.Model):
     phone = db.Column(db.String(80), unique=False, nullable=False)
 
     def __repr__(self):
-        return f"Surname: {self.f_name}, Last Name: {self.l_name}, Address: {self.address}, Parent Name: {self.parent_name}, Email: {self.email}, Phone: {self.phone}"
-    
+        return f"Student_ID:{self.Student_ID}, Surname: {self.f_name}, Last Name: {self.l_name}, Address: {self.address}, Parent Name: {self.parent_name}, Email: {self.email}, Phone: {self.phone}"
+    # Student_ID:{self.Student_ID}, 
+
+class WebContent(db.Model):
+    __bind_key__ = 'web_content'
+    __tablename__ = 'web_content'
+    id = db.Column(db.String(50), primary_key=True)
+    content = db.Column(db.Text)
+
+class Login(db.Model):
+    __bind_key__ = 'login'
+    __tablename__ = 'login'
+    id = db.Column(db.String(50), primary_key=True)
+    username = db.Column(db.String(80), nullable=False)
+    password = db.Column(db.String(80), nullable=False)
+
+
 with app.app_context():
     db.create_all()
+
 
 @app.route('/')
 def index():
@@ -56,13 +96,14 @@ def contact():
 
 @app.route('/login')
 def login():
-    return render_template('login.html')
+    return render_template('signin.html')
 
 @app.route('/join', methods=['POST', 'GET'])
 def join():
     if request.method == 'POST':
         # let's create a model for the request above 
         new_registration = registration(
+            Student_ID = registration.generate_student_id(),
             f_name = request.form.get('f_name'),
             l_name = request.form.get('l_name'),
             parent_name = request.form.get('parent_name'),
@@ -72,10 +113,8 @@ def join():
         )        
 
         print('Printing new application here:', new_registration)
+        print('registration.Student_ID: ', registration.generate_student_id())
         # now push it to the database
-
-        counts = registration.query.count()
-
         try:
             db.session.add(new_registration)
             db.session.commit()
@@ -96,10 +135,18 @@ def show():
     applications = registration.query.all()
     return render_template('show.html', applications=applications)
     
-@app.route('/<int:id>')
-def delete(id):
-    data = registration.query.get(id)
+@app.route('/<int:Student_ID>')
+def delete(Student_ID):
+    data = registration.query.get(Student_ID)
     db.session.delete(data)
     db.session.commit()
     return redirect('show')
 
+
+# _+============= Dashboards ======================
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
+if __name__ == '__main__':
+    app.run()
