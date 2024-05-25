@@ -13,7 +13,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///:memory:'
 app.config["SQLALCHEMY_BINDS"] = {
     'registration': 'sqlite:///valentina_new_student.db',
     'web_content':'sqlite:///web_contents.db',
-    'login' : 'sqlite:///login.db'
+    'SignUp' : 'sqlite:///SignUp.db'
 }
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -53,12 +53,14 @@ class WebContent(db.Model):
     id = db.Column(db.String(50), primary_key=True)
     content = db.Column(db.Text)
 
-class Login(db.Model):
-    __bind_key__ = 'login'
-    __tablename__ = 'login'
+class SignUp(db.Model):
+    __bind_key__ = 'SignUp'
+    __tablename__ = 'SignUp'
     id = db.Column(db.String(50), primary_key=True)
     username = db.Column(db.String(80), nullable=False)
+    email = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(80), nullable=False)
+    password_again = db.Column(db.String(80), nullable=False)
 
 
 with app.app_context():
@@ -155,5 +157,25 @@ def dashboard():
 def signup():
     return render_template('signup.html')
 
-if __name__ == '__main__':
-    app.run()
+@app.route('/signup_now', methods=['POST', 'GET'])
+def signup_now():
+    if request.method == 'POST':
+        new_signUp = SignUp(
+            username = request.form.get('username'),
+            email = request.form.get('email'),
+            password = request.form.get('password'),
+            password_again = request.form.get('password_again'),
+        ) 
+
+        try:
+            db.session.add(new_signUp)
+            db.session.commit()
+            print('Sign Up successful')
+            redirect('join')
+        except:
+            pass
+    else:
+        return render_template('signup')
+
+# if __name__ == '__main__':
+#     app.run()
