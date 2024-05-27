@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy # type: ignore
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import LoginManager, UserMixin
+from flask_migrate import Migrate
 
 import traceback
 import random
@@ -23,6 +24,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 # db.init_app(app)
 
+
+# initialise the migration
+migrate = Migrate(app, db)
 
 
 # LoginManager is needed for our application 
@@ -68,14 +72,22 @@ class WebContent(db.Model):
 class SignUp(UserMixin, db.Model):
     __bind_key__ = 'SignUp'
     __tablename__ = 'SignUp'
+
+    # Student ID generator
+    @staticmethod
+    def is_admin():
+        return True
+    
+
     # id = db.Column(db.String(50), primary_key=True)
     username = db.Column(db.String(80),  unique=True, nullable=False, primary_key=True)
-    email = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(80), nullable=False)
     password_again = db.Column(db.String(80), nullable=False)
+    is__admin = db.Column(db.String(80), nullable=False, default=is_admin()) 
 
     def __repr__(self):
-        return f"username:{self.username}, email: {self.email}, password: {self.password}, password_again: {self.password_again}"
+        return f"username:{self.username}, email: {self.email}, password: {self.password}, password_again: {self.password_again}, admin: {self.is_admin}"
 
 # Creates a user loader callback that returns the user object given an id
 @login_manager.user_loader
@@ -177,6 +189,11 @@ def dashboard():
 def signup():
     return render_template('signup.html')
 
+# Admin Sign Up
+@app.route('/adminSignUp')
+def adminSignUp():
+    return render_template('SignUpAdmin.html')
+
 @app.route('/signup_now', methods=["POST", "GET"])
 def signup_now():
     if request.method == 'POST':
@@ -185,7 +202,8 @@ def signup_now():
             email = request.form.get('email'),
             password = request.form.get('password'),
             password_again = request.form.get('password_again'),
-        ) 
+            is_admin = SignUp.is_admin() and request.form.get('admin'),
+        )
 
         print('New Sign Up: ', new_signUp)
 
@@ -194,13 +212,9 @@ def signup_now():
             db.session.commit()
             return redirect('join') 
         except Exception as e:
-            # return redirect('join') 
             db.session.rollback()  # Roll back the session to clean up the failed transaction
             print('Error details:', str(e))
             print(traceback.format_exc())  # Print the stack trace for more details
             return 'Issues creating registration'
-    # return redirect('join') 
 
 
-if __name__ == '__main__':
-    app.run()
