@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request
+from flask import Flask, render_template, url_for, redirect, request, session
 from flask_sqlalchemy import SQLAlchemy # type: ignore
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
@@ -74,10 +74,13 @@ class SignUp(UserMixin, db.Model):
     password = db.Column(db.String(80), nullable=False)
     password_again = db.Column(db.String(80), nullable=False)
 
+    def __repr__(self):
+        return f"username:{self.username}, email: {self.email}, password: {self.password}, password_again: {self.password_again}"
+
 # Creates a user loader callback that returns the user object given an id
 @login_manager.user_loader
 def loader_user(user_id):
-    return SignUp.query.get(user_id)
+    return SignUp.query.filter_by(username=user_id).first()
 
 
 with app.app_context():
@@ -174,7 +177,7 @@ def dashboard():
 def signup():
     return render_template('signup.html')
 
-@app.route('/signup_now', methods=['POST', 'GET'])
+@app.route('/signup_now', methods=["POST", "GET"])
 def signup_now():
     if request.method == 'POST':
         new_signUp = SignUp(
@@ -184,14 +187,20 @@ def signup_now():
             password_again = request.form.get('password_again'),
         ) 
 
+        print('New Sign Up: ', new_signUp)
+
         try:
             db.session.add(new_signUp)
             db.session.commit()
-            print('Sign Up successful')
             return redirect('join') 
-        except:
-            pass
+        except Exception as e:
+            # return redirect('join') 
+            db.session.rollback()  # Roll back the session to clean up the failed transaction
+            print('Error details:', str(e))
+            print(traceback.format_exc())  # Print the stack trace for more details
+            return 'Issues creating registration'
+    # return redirect('join') 
 
 
-# if __name__ == '__main__':
-#     app.run()
+if __name__ == '__main__':
+    app.run()
