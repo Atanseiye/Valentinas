@@ -26,17 +26,16 @@
     {% for user in users %}
     <tbody>
         <tr>
-            <!-- <th scope="row">{{application.Student_ID}}</th> -->
             <td>{{user.username}}</td>
             <td>{{user.email}}</td>
             <td>{{user.password}}</td>
             <td>{{user.password_again}}</td>
-            <td>{{user.is_admin}}</td>
-            <!-- <td><a href="#">Update</a> | <a href="{{application.f_name}}" style="color: brown;">Delete</a></td> -->
+            <td>{{user.admin}}</td>
+            <!-- <td><a href="#">Update</a> | <a href="{{user.f_name}}" style="color: brown;">Delete</a></td> -->
         </tr>
     </tbody>
     {% endfor %}
-    <p>{{greet}}</p>
+    <!-- <p>{{users}}</p> -->
 </table>
 
 

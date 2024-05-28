@@ -84,10 +84,11 @@ class SignUp(UserMixin, db.Model):
     email = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(80), nullable=False)
     password_again = db.Column(db.String(80), nullable=False)
-    is__admin = db.Column(db.String(80), nullable=False, default=0) 
+    is__admin = db.Column(db.String(80))
+
 
     def __repr__(self):
-        return f"username:{self.username}, email: {self.email}, password: {self.password}, password_again: {self.password_again}, admin: {self.is_admin}"
+        return f"username:{self.username}, email: {self.email}, password: {self.password}, password_again: {self.password_again}, admin: {self.is__admin}"
 
 # Creates a user loader callback that returns the user object given an id
 @login_manager.user_loader
@@ -174,7 +175,7 @@ def show():
 def regUsers():
     users = SignUp.query.all()
     greet = 'Hello, there'
-    return render_template('usersDB.html',  applications=greet)
+    return render_template('usersDB.html',  users=users)
     
 @app.route('/<int:Student_ID>')
 def delete(Student_ID):
@@ -211,6 +212,7 @@ def signup_now():
             password_again = request.form.get('password_again'),
             is_admin = request.form.get('admin'),
         )
+        
 
         # if SignUp.query.filter_by(username=SignUp.username).first():
         #     message = 'Username already existed'
