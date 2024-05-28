@@ -84,7 +84,7 @@ class SignUp(UserMixin, db.Model):
     email = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(80), nullable=False)
     password_again = db.Column(db.String(80), nullable=False)
-    is__admin = db.Column(db.String(80), nullable=False, default=is_admin()) 
+    is__admin = db.Column(db.String(80), nullable=False, default=0) 
 
     def __repr__(self):
         return f"username:{self.username}, email: {self.email}, password: {self.password}, password_again: {self.password_again}, admin: {self.is_admin}"
@@ -92,7 +92,7 @@ class SignUp(UserMixin, db.Model):
 # Creates a user loader callback that returns the user object given an id
 @login_manager.user_loader
 def loader_user(user_id):
-    return SignUp.query.filter_by(username=user_id).first()
+    return SignUp.query().filter_by(username=user_id).first()
 
 
 with app.app_context():
@@ -167,7 +167,14 @@ def join():
 @app.route('/show')
 def show():
     applications = registration.query.all()
+    
     return render_template('show.html', applications=applications)
+
+@app.route('/regUsers')
+def regUsers():
+    users = SignUp.query.all()
+    greet = 'Hello, there'
+    return render_template('usersDB.html',  applications=greet)
     
 @app.route('/<int:Student_ID>')
 def delete(Student_ID):
@@ -202,15 +209,22 @@ def signup_now():
             email = request.form.get('email'),
             password = request.form.get('password'),
             password_again = request.form.get('password_again'),
-            is_admin = SignUp.is_admin() and request.form.get('admin'),
+            is_admin = request.form.get('admin'),
         )
 
+        # if SignUp.query.filter_by(username=SignUp.username).first():
+        #     message = 'Username already existed'
+        #     print(message)
+        # elif SignUp.query.filter_by(username=SignUp.email).first():
+        #     message = 'Email already existed'
+
         print('New Sign Up: ', new_signUp)
+        print(SignUp.query.filter_by(username='kolade').first())
 
         try:
             db.session.add(new_signUp)
             db.session.commit()
-            return redirect('join') 
+            return redirect('join')
         except Exception as e:
             db.session.rollback()  # Roll back the session to clean up the failed transaction
             print('Error details:', str(e))
@@ -218,3 +232,6 @@ def signup_now():
             return 'Issues creating registration'
 
 
+
+if __name__ == '__main__':
+    app.run()
