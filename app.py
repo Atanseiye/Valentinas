@@ -220,6 +220,8 @@ def signup_now():
         #     print(message)
         # elif SignUp.query.filter_by(username=SignUp.email).first():
         #     message = 'Email already existed'
+        messages = 'Username alreay existed'
+
 
         print('New Sign Up: ', new_signUp)
         print(SignUp.query.filter_by(username='kolade').first())
@@ -229,8 +231,7 @@ def signup_now():
             db.session.commit()
             return redirect('join')
         except Exception as e:
-            message = 'Username alreay existed'
-            return redirect('join', applications=message)
+            return render_template('join', messages=messages)
             db.session.rollback()  # Roll back the session to clean up the failed transaction
             print('Error details:', str(e))
             print(traceback.format_exc())  # Print the stack trace for more details
