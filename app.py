@@ -215,28 +215,33 @@ def signup_now():
         
         print(SignUp.query.filter_by(username=request.form.get('username')).first())
 
-        # if SignUp.query.filter_by(username=SignUp.username).first():
-        #     message = 'Username already existed'
-        #     print(message)
-        # elif SignUp.query.filter_by(username=SignUp.email).first():
-        #     message = 'Email already existed'
-        messages = 'Username alreay existed'
-        messages = 'Email already existed'
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        password_again = request.form.get('password_again')
 
+        if SignUp.query.filter_by(username=username).scalar():
+            Usermessages = 'Username already existed'
+            return render_template('signup.html', Usermessages=Usermessages)
+        elif SignUp.query.filter_by(email=email).scalar():
+            Emailmessages = 'Email already existed'
+            return render_template('signup.html', Emailmessages=Emailmessages)
+        elif password != password_again:
+            pass_error = 'Password is not matching'
+            return render_template('signup.html', pass_error=pass_error)
 
-        print('New Sign Up: ', new_signUp)
-        print(SignUp.query.filter_by(username='kolade').first())
 
         try:
             db.session.add(new_signUp)
             db.session.commit()
             return redirect('join')
+           
         except Exception as e:
-            return render_template('signup.html', messages=messages)
             db.session.rollback()  # Roll back the session to clean up the failed transaction
             print('Error details:', str(e))
             print(traceback.format_exc())  # Print the stack trace for more details
-            return 'Issues creating registration'
+            errors = 'Issues creating registration'
+            return render_template('signup.html', errors=errors)
 
 
 
