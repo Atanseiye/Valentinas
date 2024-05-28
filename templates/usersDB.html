@@ -23,7 +23,7 @@
             <th>Is Admin</th>
         </tr>
     </thead>
-    {% for user in users %}
+    {% for user in users[0] %}
     <tbody>
         <tr>
             <td>{{user.username}}</td>
@@ -35,7 +35,7 @@
         </tr>
     </tbody>
     {% endfor %}
-    <!-- <p>{{users}}</p> -->
+    <!-- <p>{{users[1]}}</p> -->
 </table>
 
 

@@ -175,7 +175,7 @@ def show():
 def regUsers():
     users = SignUp.query.all()
     greet = 'Hello, there'
-    return render_template('usersDB.html',  users=users)
+    return render_template('usersDB.html',  users=[users, greet])
     
 @app.route('/<int:Student_ID>')
 def delete(Student_ID):
@@ -213,6 +213,7 @@ def signup_now():
             is_admin = request.form.get('admin'),
         )
         
+        print(SignUp.query.filter_by(username=request.form.get('username')).first())
 
         # if SignUp.query.filter_by(username=SignUp.username).first():
         #     message = 'Username already existed'
@@ -228,6 +229,8 @@ def signup_now():
             db.session.commit()
             return redirect('join')
         except Exception as e:
+            message = 'Username alreay existed'
+            return redirect('join', applications=message)
             db.session.rollback()  # Roll back the session to clean up the failed transaction
             print('Error details:', str(e))
             print(traceback.format_exc())  # Print the stack trace for more details
