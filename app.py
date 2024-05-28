@@ -81,7 +81,7 @@ class SignUp(UserMixin, db.Model):
 
     # id = db.Column(db.String(50), primary_key=True)
     username = db.Column(db.String(80),  unique=True, nullable=False, primary_key=True)
-    email = db.Column(db.String(80), nullable=False)
+    email = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
     password_again = db.Column(db.String(80), nullable=False)
     is__admin = db.Column(db.String(80))
@@ -221,6 +221,7 @@ def signup_now():
         # elif SignUp.query.filter_by(username=SignUp.email).first():
         #     message = 'Email already existed'
         messages = 'Username alreay existed'
+        messages = 'Email already existed'
 
 
         print('New Sign Up: ', new_signUp)
@@ -231,7 +232,7 @@ def signup_now():
             db.session.commit()
             return redirect('join')
         except Exception as e:
-            return render_template('join', messages=messages)
+            return render_template('signup.html', messages=messages)
             db.session.rollback()  # Roll back the session to clean up the failed transaction
             print('Error details:', str(e))
             print(traceback.format_exc())  # Print the stack trace for more details
@@ -239,5 +240,5 @@ def signup_now():
 
 
 
-# if __name__ == '__main__':
-#     app.run()
+if __name__ == '__main__':
+    app.run()
