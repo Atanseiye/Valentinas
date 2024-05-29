@@ -84,7 +84,7 @@ class SignUp(UserMixin, db.Model):
     email = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
     password_again = db.Column(db.String(80), nullable=False)
-    is__admin = db.Column(db.String(80))
+    is__admin = db.Column(db.String(3))
 
 
     def __repr__(self):
@@ -227,10 +227,11 @@ def signup_now():
             email = request.form.get('email'),
             password = request.form.get('password'),
             password_again = request.form.get('password_again'),
-            is_admin = request.form.get('admin'),
+            is__admin = request.form.get('admin'),
         )
         
-        print(SignUp.query.filter_by(username=request.form.get('username')).first())
+        # print(SignUp.query.filter_by(username=request.form.get('username')).first())
+        print(new_signUp)
 
         username = request.form.get('username')
         email = request.form.get('email')

@@ -16,22 +16,25 @@
 <table class="table table-striped table-dark table-hover table-sm table-bordered p-5">
     <thead>
         <tr>
+            <th>ID</th>
             <th>Username</th>
             <th>Email</th>
             <th>Password</th>
             <th>Password again</th>
             <th>Is Admin</th>
+            <th>Action</th>
         </tr>
     </thead>
     {% for user in users[0] %}
     <tbody>
         <tr>
+            <td>{{user.id}}</td>
             <td>{{user.username}}</td>
             <td>{{user.email}}</td>
             <td>{{user.password}}</td>
             <td>{{user.password_again}}</td>
             <td>{{user.admin}}</td>
-            <!-- <td><a href="#">Update</a> | <a href="{{user.f_name}}" style="color: brown;">Delete</a></td> -->
+            <td><a href="#">Update</a> | <a href="" style="color: brown;">Delete</a></td>
         </tr>
     </tbody>
     {% endfor %}
