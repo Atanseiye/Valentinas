@@ -2,7 +2,7 @@ from flask import Flask, render_template, url_for, redirect, request, session
 from flask_sqlalchemy import SQLAlchemy # type: ignore
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
-from flask_login import LoginManager, UserMixin, login_user
+from flask_login import LoginManager, UserMixin, login_user, logout_user
 from flask_migrate import Migrate
 
 import traceback
@@ -222,6 +222,12 @@ def signup():
 @app.route('/adminSignUp')
 def adminSignUp():
     return render_template('SignUpAdmin.html')
+
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
 
 @app.route('/signup_now', methods=["POST", "GET"])
 def signup_now():
