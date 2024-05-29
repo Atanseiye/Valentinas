@@ -140,16 +140,15 @@ def sign_in():
 
     if request.method == "POST":
         message = 'Please, check your Username or Passworw again'
+        message2 = "Sorry! You are not registered"
         user = SignUp.query.filter_by(username=username).first()
-        if user in SignUp:
-            print(user)
+        print(user)
+        if user in SignUp.query.all():
             if user.password == password:
                 login_user(user)
                 return 'Signed In'
-        
-        return render_template("signin.html", message=message)
-        
-    return render_template("signin.html")
+            return render_template("signin.html", message=message)
+        return render_template("signin.html", message2=message2)
 
 @app.route('/join', methods=['POST', 'GET'])
 def join():
