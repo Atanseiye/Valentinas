@@ -2,7 +2,7 @@ from flask import Flask, render_template, url_for, redirect, request, session
 from flask_sqlalchemy import SQLAlchemy # type: ignore
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
-from flask_login import LoginManager, UserMixin
+from flask_login import LoginManager, UserMixin, login_user
 from flask_migrate import Migrate
 
 import traceback
@@ -93,7 +93,7 @@ class SignUp(UserMixin, db.Model):
 # Creates a user loader callback that returns the user object given an id
 @login_manager.user_loader
 def loader_user(user_id):
-    return SignUp.query().filter_by(username=user_id).first()
+    return SignUp.query().get(user_id)
 
 
 with app.app_context():
@@ -132,6 +132,20 @@ def contact():
 @app.route('/login')
 def login():
     return render_template('signin.html')
+
+@app.route('/sign_in', methods=["POST", "GET"])
+def sign_in():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    if request.method == "POST":
+        user = SignUp.query.filter_by(username=username).first()
+        print(user)
+        if user.password == password:
+            login_user(user)
+            return 'Signed In'
+        # redirect(url_for("home"))
+        
+    return render_template("signin.html")
 
 @app.route('/join', methods=['POST', 'GET'])
 def join():
