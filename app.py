@@ -137,6 +137,7 @@ def login():
 def sign_in():
     username = request.form.get('username')
     password = request.form.get('password')
+    # admin = SignUp.query.filter_by(is__admin)
 
     if request.method == "POST":
         message = 'Please, check your Username or Passworw again'
@@ -145,6 +146,9 @@ def sign_in():
         print(user)
         if user in SignUp.query.all():
             if user.password == password:
+                if user.is__admin == '1':
+                    login_user(user)
+                    return render_template('dashboard.html')
                 login_user(user)
                 return 'Signed In'
             return render_template("signin.html", message=message)
