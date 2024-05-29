@@ -18,7 +18,7 @@ app.config["SQLALCHEMY_BINDS"] = {
     'SignUp' : 'sqlite:///SignUp.db'
 }
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# app.config["SECRET_KEY"] = "K0lade001."
+app.config["SECRET_KEY"] = "K0lade001."
 
 # initialise the database
 db = SQLAlchemy(app)
@@ -79,8 +79,8 @@ class SignUp(UserMixin, db.Model):
         return True
     
 
-    # id = db.Column(db.String(50), primary_key=True)
-    username = db.Column(db.String(80),  unique=True, nullable=False, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80),  unique=True, nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
     password_again = db.Column(db.String(80), nullable=False)
@@ -88,7 +88,7 @@ class SignUp(UserMixin, db.Model):
 
 
     def __repr__(self):
-        return f"username:{self.username}, email: {self.email}, password: {self.password}, password_again: {self.password_again}, admin: {self.is__admin}"
+        return f"id:{self.id},  username:{self.username}, email: {self.email}, password: {self.password}, password_again: {self.password_again}, admin: {self.is__admin}"
 
 # Creates a user loader callback that returns the user object given an id
 @login_manager.user_loader
