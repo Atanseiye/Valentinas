@@ -1,4 +1,6 @@
-- Implement and encode the login form
+- Implement and encode the login form - done
+- Create the profile page that is displayed when the user logs in, for admin and normal use
+- create a script that allows the system determine if a user is an admin or not
 
 
 
