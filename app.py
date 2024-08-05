@@ -10,7 +10,10 @@ import random
 import string
 import datetime
 
+# Initialising the flask app
 app = Flask(__name__)
+
+# Initialising the configuration of the database: SQLALCHEMY
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///:memory:'
 app.config["SQLALCHEMY_BINDS"] = {
     'registration': 'sqlite:///valentina_new_student.db',
